@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link } from "react-router-dom";
 import api from "../lib/api";
 import { fmtPct } from "../utils/format";
@@ -16,17 +16,17 @@ export default function FundExplorer() {
   const [risk, setRisk] = useState("All");
   const [sort, setSort] = useState("returns_3y");
 
-  const fetchData = () => {
+  const fetchData = useCallback(() => {
     api.get("/funds", { params: { category, risk, q: q || undefined } }).then((r) => setFunds(r.data));
     api.get("/watchlist").then((r) => setWatchSet(new Set(r.data.map((f) => f.id))));
-  };
+  }, [category, risk, q]);
 
-  useEffect(() => { fetchData(); /* eslint-disable-next-line */ }, [category, risk]);
+  useEffect(() => { fetchData(); }, [fetchData]);
   useEffect(() => {
+    if (!q) return undefined;
     const t = setTimeout(fetchData, 300);
     return () => clearTimeout(t);
-    // eslint-disable-next-line
-  }, [q]);
+  }, [fetchData, q]);
 
   const sorted = useMemo(() => [...funds].sort((a, b) => (b[sort] || 0) - (a[sort] || 0)), [funds, sort]);
 

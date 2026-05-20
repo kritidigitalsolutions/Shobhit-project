@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import api, { formatApiError } from "../../lib/api";
 import { fmtINR, fmtNum } from "../../utils/format";
@@ -9,8 +9,8 @@ export default function AdminUserDetail() {
   const { id } = useParams();
   const [data, setData] = useState(null);
 
-  const load = () => api.get(`/admin/users/${id}`).then((r) => setData(r.data));
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [id]);
+  const load = useCallback(() => api.get(`/admin/users/${id}`).then((r) => setData(r.data)), [id]);
+  useEffect(() => { load(); }, [load]);
 
   if (!data) return <div className="overline">Loading…</div>;
   const { user, holdings, sips, transactions, kyc } = data;
