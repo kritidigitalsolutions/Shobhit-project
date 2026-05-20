@@ -40,10 +40,14 @@ api = APIRouter(prefix="/api")
 bearer = HTTPBearer(auto_error=False)
 
 # Add CORS middleware BEFORE adding routes
+cors_env = os.getenv("CORS_ORIGINS", "*")
+cors_origins = [origin.strip() for origin in cors_env.split(",") if origin.strip()]
+allow_all_origins = "*" in cors_origins
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=["*"] if allow_all_origins else cors_origins,
+    allow_credentials=False if allow_all_origins else True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
