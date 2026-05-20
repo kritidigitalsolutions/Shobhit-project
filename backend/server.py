@@ -21,11 +21,18 @@ from pydantic import BaseModel, Field, EmailStr
 
 
 # -------- DB --------
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+def get_required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
 
-JWT_SECRET = os.environ['JWT_SECRET']
+
+mongo_url = get_required_env("MONGO_URL")
+client = AsyncIOMotorClient(mongo_url)
+db = client[get_required_env("DB_NAME")]
+
+JWT_SECRET = get_required_env("JWT_SECRET")
 JWT_ALGORITHM = "HS256"
 
 app = FastAPI()
